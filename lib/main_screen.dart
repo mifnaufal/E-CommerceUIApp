@@ -3,11 +3,21 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
-// Impor semua halaman yang ingin kita tampilkan di navigasi
+// Impor semua halaman yang kita butuhkan
 import 'home_page.dart';
 import 'cart_page.dart';
-import 'account_page.dart'; // Ganti dengan halaman list/akun jika perlu
+import 'account_page.dart';
 import 'chat_list_page.dart';
+
+// Data Model untuk Item. Kita letakkan di sini agar bisa diakses semua halaman.
+class Item {
+  final int id;
+  final String name;
+  final String imagePath;
+  final double price;
+
+  Item({required this.id, required this.name, required this.imagePath, required this.price});
+}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,29 +27,64 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // Indeks untuk melacak halaman mana yang sedang aktif
   int _selectedIndex = 0;
 
-  // Daftar semua halaman/widget yang akan ditampilkan
-  final List<Widget> _pages = [
-    const HomePage(),
-    const CartPage(),
-    const AccountPage(), // Ganti ini jika ikon 'list' menuju halaman lain
-    const ChatListPage(),
-  ];
+  // =======================================================
+  // PUSAT KENDALI KERANJANG BELANJA
+  // =======================================================
+  final List<CartItem> _cartItems = [];
 
+  void _addToCart(Item product) {
+    setState(() {
+      // Cek apakah produk sudah ada di keranjang
+      for (var item in _cartItems) {
+        if (item.product.id == product.id) {
+          item.quantity++; // Jika ada, tambah jumlahnya
+          return;
+        }
+      }
+      // Jika tidak ada, tambahkan sebagai item baru
+      _cartItems.add(CartItem(product: product));
+    });
+  }
+
+  void _removeFromCart(int productId) {
+    setState(() {
+      _cartItems.removeWhere((item) => item.product.id == productId);
+    });
+  }
+
+  void _updateQuantity(int productId, int change) {
+    setState(() {
+      final item = _cartItems.firstWhere((item) => item.product.id == productId);
+      if (item.quantity + change > 0) {
+        item.quantity += change;
+      }
+    });
+  }
+  // =======================================================
+
+  // Kita buat daftar halaman di dalam build agar bisa passing fungsi
   @override
   Widget build(BuildContext context) {
+    // Daftar halaman sekarang menerima data & fungsi keranjang
+    final List<Widget> pages = [
+      HomePage(onAddToCart: _addToCart), // Kirim fungsi _addToCart ke HomePage
+      CartPage( // Kirim semua data & fungsi yang relevan ke CartPage
+        cartItems: _cartItems,
+        onRemoveFromCart: _removeFromCart,
+        onUpdateQuantity: _updateQuantity,
+      ),
+      const AccountPage(),
+      const ChatListPage(),
+    ];
+
     return Scaffold(
-      // Body sekarang akan berubah-ubah sesuai dengan indeks yang dipilih
-      body: _pages[_selectedIndex],
-      
+      body: pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.transparent,
-        // Atur indeks awal agar sesuai dengan _selectedIndex
         index: _selectedIndex,
         onTap: (index) {
-          // Saat item di-tap, perbarui state dengan indeks baru
           setState(() {
             _selectedIndex = index;
           });
@@ -49,7 +94,7 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           Icon(Icons.home, size: 30, color: Colors.white),
           Icon(Icons.shopping_cart, size: 30, color: Colors.white),
-          Icon(Icons.person, size: 30, color: Colors.white), // Saya ganti 'list' dengan 'person' untuk AccountPage
+          Icon(Icons.person, size: 30, color: Colors.white),
           Icon(Icons.chat_bubble_outline, size: 30, color: Colors.white),
         ],
       ),
