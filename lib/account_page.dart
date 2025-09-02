@@ -115,6 +115,11 @@ class _AccountPageState extends State<AccountPage> {
     return Column(
       children: [
         _buildSettingItem(
+          icon: Icons.shopping_cart_outlined,
+          title: 'My Cart',
+          onTap: () => Navigator.pushNamed(context, '/cart'),
+        ),
+        _buildSettingItem(
           icon: Icons.person_outline,
           title: 'Profile',
           onTap: () {

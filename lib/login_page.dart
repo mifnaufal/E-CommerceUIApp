@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
           // Cek validasi form
           if (_formKey.currentState!.validate()) {
             // Jika valid, pindah ke halaman akun
-            Navigator.pushReplacementNamed(context, '/account');
+            Navigator.pushReplacementNamed(context, '/home');
           }
         },
         style: ElevatedButton.styleFrom(
