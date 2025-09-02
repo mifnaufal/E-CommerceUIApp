@@ -1,5 +1,9 @@
+// lib/items_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
+// Tidak perlu import curved_navigation_bar atau badges di file ini
+// karena tidak dipakai di sini.
 
 class ItemsWidget extends StatelessWidget {
   const ItemsWidget({super.key});
@@ -12,7 +16,7 @@ class ItemsWidget extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       children: [
-        for (int i=1; i<8; i++)
+        for (int i = 1; i < 8; i++)
           Container(
             padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -40,10 +44,7 @@ class ItemsWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Icon(
-                      Icons.favorite_border,
-                      color: Colors.red,
-                    )
+                    const Icon(Icons.favorite_border, color: Colors.red),
                   ],
                 ),
                 InkWell(
@@ -51,9 +52,10 @@ class ItemsWidget extends StatelessWidget {
                   child: Container(
                     margin: const EdgeInsets.all(10),
                     child: Image.asset(
-                      "assets/images/carts/$i.png",
-                       height: 120,
-                       width: 120,
+                      // pastikan ekstensi sesuai file kamu (.jpeg/.jpg)
+                      "assets/images/carts/$i.jpeg",
+                      height: 120,
+                      width: 120,
                     ),
                   ),
                 ),
@@ -73,10 +75,7 @@ class ItemsWidget extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: const Text(
                     "Write description of product",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF4C53A5),
-                    ),
+                    style: TextStyle(fontSize: 15, color: Color(0xFF4C53A5)),
                   ),
                 ),
                 Padding(
@@ -89,32 +88,33 @@ class ItemsWidget extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C53A5)
+                          color: Color(0xFF4C53A5),
                         ),
                       ),
-                       RatingBar.builder(
-                          initialRating: 4,
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          itemCount: 5,
-                          itemSize: 20,
-                          itemPadding: const EdgeInsets.symmetric(horizontal: 4),
-                          itemBuilder: (context, _) => const Icon(
-                            Icons.favorite,
-                            color: Color(0xFF4C53A5),
-                          ),
-                          onRatingUpdate: (index){},
+                      RatingBar.builder(
+                        initialRating: 4,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        itemCount: 5,
+                        itemSize: 20,
+                        itemPadding:
+                            const EdgeInsets.symmetric(horizontal: 4),
+                        itemBuilder: (context, _) => const Icon(
+                          Icons.favorite,
+                          color: Color(0xFF4C53A5),
                         ),
+                        onRatingUpdate: (index) {},
+                      ),
                       const Icon(
                         Icons.shopping_cart_checkout,
                         color: Color(0xFF4C53A5),
-                      )
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
       ],
     );
   }

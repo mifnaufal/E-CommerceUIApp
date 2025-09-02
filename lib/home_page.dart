@@ -1,24 +1,18 @@
-// lib/home_page.dart
-
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'home_appbar.dart';
-import 'categories_widget.dart';
-import 'items_widget.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class HomePage extends StatefulWidget {
+// =======================================================
+// HALAMAN UTAMA (HOME PAGE)
+// =======================================================
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; 
-  
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Kita tetap butuh Scaffold di sini untuk AppBar dan layout dasar
       body: ListView(
         children: [
           const HomeAppBar(),
@@ -33,6 +27,7 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Column(
               children: [
+                // Search Widget
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 15),
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -59,6 +54,8 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
+
+                // Judul "Categories"
                 Container(
                   alignment: Alignment.centerLeft,
                   margin: const EdgeInsets.symmetric(
@@ -75,9 +72,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const CategoriesWidget(),
+
+                // Judul "Best Selling"
                 Container(
                   alignment: Alignment.centerLeft,
-                  margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                   child: const Text(
                     "Best Selling",
                     style: TextStyle(
@@ -93,21 +93,189 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.transparent,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        height: 70,
-        color: const Color(0xFF4C53A5),
-        items: const [
-          Icon(Icons.home, size: 30, color: Colors.white),
-          Icon(Icons.shopping_cart, size: 30, color: Colors.white),
-          Icon(Icons.list, size: 30, color: Colors.white),
+    );
+  }
+}
+
+// =======================================================
+// WIDGET UNTUK APP BAR
+// =======================================================
+class HomeAppBar extends StatelessWidget {
+  const HomeAppBar({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(25),
+      child: Row(
+        children: [
+          const Icon(Icons.sort, size: 30, color: Color(0xFF4C53A5)),
+          const Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text("DP Shop",
+                style: TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF4C53A5))),
+          ),
+          const Spacer(),
+          badges.Badge(
+            badgeContent:
+                const Text('3', style: TextStyle(color: Colors.white)),
+            badgeStyle: const badges.BadgeStyle(
+                badgeColor: Colors.red, padding: EdgeInsets.all(7)),
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(context, "/cart"),
+              child: const Icon(Icons.shopping_bag_outlined,
+                  size: 32, color: Color(0xFF4C53A5)),
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+// =======================================================
+// WIDGET UNTUK KATEGORI
+// =======================================================
+class CategoriesWidget extends StatelessWidget {
+  const CategoriesWidget({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(children: [
+        // Kategori khusus "Sandal"
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(20)),
+          child:
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Image.asset("assets/images/carts/9.jpeg", // Path benar
+                width: 40,
+                height: 40),
+            const SizedBox(width: 10),
+            const Text("Sandal",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: Color(0xFF4C53A5)))
+          ]),
+        ),
+        // Kategori lainnya dari loop
+        for (int i = 1; i < 5; i++) // Sesuaikan angka 5 jika gambar lebih banyak
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(20)),
+            child:
+                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Image.asset("assets/images/carts/$i.jpeg", // Path benar
+                  width: 40,
+                  height: 40),
+              const SizedBox(width: 10),
+              Text("Category ${i}",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Color(0xFF4C53A5)))
+            ]),
+          )
+      ]),
+    );
+  }
+}
+
+// =======================================================
+// WIDGET UNTUK DAFTAR ITEM
+// =======================================================
+class ItemsWidget extends StatelessWidget {
+  const ItemsWidget({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      childAspectRatio: 0.68,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      children: [
+        for (int i = 1; i < 5; i++) // Sesuaikan angka 5 jika gambar lebih banyak
+          Container(
+            padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(20)),
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF4C53A5),
+                      borderRadius: BorderRadius.circular(20)),
+                  child: const Text("-50%",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold)),
+                ),
+                const Icon(Icons.favorite_border, color: Colors.red)
+              ]),
+              InkWell(
+                onTap: () {},
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Image.asset(
+                    "assets/images/carts/$i.jpeg", // Path benar
+                    height: 120,
+                    width: 120,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(bottom: 8),
+                alignment: Alignment.centerLeft,
+                child: const Text("Product Title",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF4C53A5),
+                        fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: const Text("Write description of product",
+                    style: TextStyle(fontSize: 15, color: Color(0xFF4C53A5))),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("\$55",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF4C53A5))),
+                      RatingBar.builder(
+                        initialRating: 4,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        itemCount: 5,
+                        itemSize: 20,
+                        itemPadding:
+                            const EdgeInsets.symmetric(horizontal: 4),
+                        itemBuilder: (context, _) =>
+                            const Icon(Icons.favorite, color: Color(0xFF4C53A5)),
+                        onRatingUpdate: (index) {},
+                      ),
+                    ]),
+              ),
+            ]),
+          )
+      ],
     );
   }
 }

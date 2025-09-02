@@ -1,3 +1,4 @@
+// lib/cart_page.dart
 import 'package:flutter/material.dart';
 import 'cart_appbar.dart';
 import 'cart_bottom_navbar.dart';
@@ -9,47 +10,54 @@ class CartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
+      body: Column( // <-- Pastikan body adalah Column
         children: [
-          const CartAppBar(),
-          Container(
-            padding: const EdgeInsets.only(top: 15),
-            decoration: const BoxDecoration(
-              color: Color(0xFFEDECF2),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35),
-                topRight: Radius.circular(35),
-              ),
-            ),
-            child: Column(
+          const CartAppBar(), // AppBar di atas
+          Expanded( // <-- Expanded membungkus konten yang bisa di-scroll
+            child: ListView(
               children: [
-                const CartItemSamples(),
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
+                  padding: const EdgeInsets.only(top: 15),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEDECF2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(35),
+                      topRight: Radius.circular(35),
+                    ),
+                  ),
+                  child: Column(
                     children: [
+                      const CartItemSamples(),
                       Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 15),
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                "Add Coupon Code",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          "Add Coupon Code",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      )
                     ],
                   ),
                 ),
@@ -58,7 +66,7 @@ class CartPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: const CartBottomNavBar(),
+      bottomNavigationBar: const CartBottomNavBar(), // BottomNavBar di bawah
     );
   }
 }

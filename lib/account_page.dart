@@ -8,7 +8,6 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  // Method untuk menampilkan dialog konfirmasi logout (Section 2.2.7)
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -26,11 +25,8 @@ class _AccountPageState extends State<AccountPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                // Hapus semua rute sebelumnya dan kembali ke halaman login
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/login', (Route<dynamic> route) => false);
-
-                // Menampilkan notifikasi bahwa logout berhasil
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Logout successful!'),
@@ -45,7 +41,6 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  // Widget untuk Header Profil (Section 2.2.4)
   Widget _buildHeaderProfile() {
     return Container(
       decoration: BoxDecoration(
@@ -56,16 +51,17 @@ class _AccountPageState extends State<AccountPage> {
         ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Row(
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundImage: AssetImage('assets/images/profile.jpg'), // Ganti dengan path gambar Anda
+              // PASTIKAN NAMA FILE GAMBAR PROFIL ANDA BENAR DI SINI
+              backgroundImage: AssetImage('assets/images/poto.jpg'),
             ),
-            SizedBox(width: 20),
-            Column(
+            const SizedBox(width: 20),
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -91,7 +87,6 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  // Widget reusable untuk item menu (Section 2.2.5)
   Widget _buildSettingItem({
     required IconData icon,
     required String title,
@@ -110,7 +105,6 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  // Widget untuk bagian menu settings (Section 2.2.6)
   Widget _buildSettingSection() {
     return Column(
       children: [
@@ -122,9 +116,7 @@ class _AccountPageState extends State<AccountPage> {
         _buildSettingItem(
           icon: Icons.person_outline,
           title: 'Profile',
-          onTap: () {
-            // Aksi untuk Profile
-          },
+          onTap: () {},
         ),
         _buildSettingItem(
           icon: Icons.lock_outline,
@@ -144,7 +136,7 @@ class _AccountPageState extends State<AccountPage> {
         _buildSettingItem(
           icon: Icons.logout,
           title: 'Logout',
-          onTap: _showLogoutDialog, // Memanggil dialog logout
+          onTap: _showLogoutDialog,
         ),
       ],
     );
@@ -154,20 +146,9 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        title: const Text('My Account', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue.shade700,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              // Aksi untuk settings
-            },
-          ),
-        ],
-      ),
-      // Gabungan semua komponen (Section 2.2.8)
+      // AppBar tidak diperlukan jika halaman ini bagian dari MainScreen
+      // Namun jika diakses terpisah, AppBar bisa ditambahkan kembali.
+      // appBar: AppBar( ... ), 
       body: SingleChildScrollView(
         child: Column(
           children: [
