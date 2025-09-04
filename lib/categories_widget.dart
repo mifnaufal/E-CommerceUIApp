@@ -1,73 +1,178 @@
 import 'package:flutter/material.dart';
 
-class CategoriesWidget extends StatelessWidget {
-  const CategoriesWidget({super.key});
+class Category {
+  final int id;
+  final String name;
+  final String assetPath;
+  const Category({
+    required this.id,
+    required this.name,
+    required this.assetPath,
+  });
+}
+
+class CategoriesWidget extends StatefulWidget {
+  const CategoriesWidget({
+    super.key,
+    this.categories,
+    this.initialSelectedId,
+    this.onSelected,
+    this.height = 84,
+    this.itemSpacing = 10,
+  });
+
+  /// Kalau null, widget akan pakai default:
+  /// [Sandal (9.jpeg), 1.jpeg..8.jpeg]
+  final List<Category>? categories;
+
+  /// ID kategori yang dipilih awal (opsional)
+  final int? initialSelectedId;
+
+  /// Callback saat user memilih kategori (opsional)
+  final ValueChanged<Category>? onSelected;
+
+  /// Tinggi baris kategori
+  final double height;
+
+  /// Spasi antar item
+  final double itemSpacing;
+
+  @override
+  State<CategoriesWidget> createState() => _CategoriesWidgetState();
+}
+
+class _CategoriesWidgetState extends State<CategoriesWidget> {
+  late final List<Category> _items;
+  int? _selectedId;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = widget.categories ?? _buildDefaultItems();
+    _selectedId = widget.initialSelectedId ?? (_items.isNotEmpty ? _items.first.id : null);
+  }
+
+  List<Category> _buildDefaultItems() {
+    // Urutan: Sandal (9.jpeg) dulu, lalu 1..8.jpeg
+    const sandal = Category(
+      id: 9,
+      name: 'Sandal',
+      assetPath: 'assets/images/carts/9.jpeg',
+    );
+
+    final others = <Category>[
+      for (int i = 1; i <= 8; i++)
+        Category(
+          id: i,
+          name: 'Category $i',
+          assetPath: 'assets/images/carts/$i.jpeg',
+        ),
+    ];
+
+    return [sandal, ...others];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          // Kategori khusus untuk gambar 9.jpeg (Sandal)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Menggunakan gambar 9.jpeg
-                Image.asset(
-                  "assets/images/carts/9.jpeg", // Pastikan path dan ekstensi benar
-                  width: 40,
-                  height: 40,
-                ),
-                const Text(
-                  "Sandal", // Teks tetap ada di samping gambar
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: Color(0xFF4C53A5),
+    final scheme = Theme.of(context).colorScheme;
+
+    if (_items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      height: widget.height,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        scrollDirection: Axis.horizontal,
+        itemCount: _items.length,
+        separatorBuilder: (_, __) => SizedBox(width: widget.itemSpacing),
+        itemBuilder: (context, index) {
+          final cat = _items[index];
+          final selected = cat.id == _selectedId;
+
+          final bg = selected
+              ? scheme.primaryContainer
+              : Theme.of(context).cardColor;
+
+          final borderColor = selected
+              ? scheme.primary
+              : scheme.outlineVariant.withOpacity(.7);
+
+          final textColor = selected
+              ? scheme.onPrimaryContainer
+              : Theme.of(context).textTheme.bodyMedium?.color;
+
+          return Semantics(
+            button: true,
+            selected: selected,
+            label: 'Kategori ${cat.name}',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  setState(() => _selectedId = cat.id);
+                  widget.onSelected?.call(cat);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
+                    boxShadow: selected
+                        ? [
+                            BoxShadow(
+                              color: scheme.primary.withOpacity(.15),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : [],
                   ),
-                )
-              ],
-            ),
-          ),
-          // Kategori-kategori lainnya (jika ada, menggunakan i.png)
-          for (int i = 1; i < 8; i++) // Anda bisa menyesuaikan angka 8 ini
-            // Pastikan tidak ada duplikasi 'Sandal' jika 9.jpeg juga ada di 1-8
-            if (i != 9) // Hindari duplikasi jika 9.jpeg juga termasuk dalam loop 1-8
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/images/carts/$i.jpeg", // Asumsi ekstensi .jpeg untuk semua
-                      width: 40,
-                      height: 40,
-                    ),
-                    Text(
-                      "Category $i", // Contoh nama kategori lainnya
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        color: Color(0xFF4C53A5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Gambar kategori (dengan fallback)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          cat.assetPath,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 44,
+                            height: 44,
+                            alignment: Alignment.center,
+                            color: scheme.surfaceVariant.withOpacity(.6),
+                            child: Icon(Icons.image_not_supported_outlined,
+                                size: 22, color: scheme.onSurfaceVariant),
+                          ),
+                        ),
                       ),
-                    )
-                  ],
+                      const SizedBox(width: 10),
+                      Text(
+                        cat.name,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                      ),
+                      if (selected) ...[
+                        const SizedBox(width: 8),
+                        Icon(Icons.check_circle,
+                            size: 18, color: scheme.primary),
+                      ],
+                    ],
+                  ),
                 ),
               ),
-        ],
+            ),
+          );
+        },
       ),
     );
   }

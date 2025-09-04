@@ -24,7 +24,7 @@ class CartPage extends StatelessWidget {
     required this.onUpdateQuantity,
   });
 
-  // Fungsi untuk menghitung total
+  // Fungsi untuk menghitung total (tetap, tidak diubah)
   double _calculateTotal() {
     double total = 0;
     for (var item in cartItems) {
@@ -35,35 +35,61 @@ class CartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: Column(
         children: [
           const CartAppBar(),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.only(top: 15),
-              decoration: const BoxDecoration(
-                color: Color(0xFFEDECF2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35),
-                  topRight: Radius.circular(35),
+              padding: const EdgeInsets.only(top: 16),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
                 ),
               ),
               child: cartItems.isEmpty
-                  // Tampilkan pesan jika keranjang kosong
-                  ? const Center(
-                      child: Text(
-                        "Keranjang Anda Kosong",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                  // Empty state (UI saja)
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.shopping_cart_outlined,
+                                size: 64, color: scheme.onSurfaceVariant),
+                            const SizedBox(height: 12),
+                            Text(
+                              "Keranjang Anda Kosong",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              "Ayo tambahkan produk favorit Anda.",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color: scheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
                       ),
                     )
-                  // Tampilkan daftar jika ada isinya
+                  // Daftar item + section checkout (struktur tetap)
                   : ListView(
+                      padding:
+                          const EdgeInsets.only(left: 12, right: 12, bottom: 24),
                       children: [
                         for (var cartItem in cartItems)
-                          _buildCartItemWidget(cartItem),
-                        _buildCheckoutSection(),
+                          _buildCartItemWidget(context, cartItem),
+                        _buildCheckoutSection(context),
                       ],
                     ),
             ),
@@ -73,101 +99,159 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk menampilkan satu item
-  Widget _buildCartItemWidget(CartItem cartItem) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10)),
-      child: Row(
-        children: [
-          Container(
-            height: 70,
-            width: 70,
-            margin: const EdgeInsets.only(right: 15),
-            child: Image.asset(cartItem.product.imagePath, fit: BoxFit.cover),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  // Widget untuk menampilkan satu item (UI saja)
+  Widget _buildCartItemWidget(BuildContext context, CartItem cartItem) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 72,
+                width: 72,
+                color: scheme.surfaceVariant.withOpacity(.5),
+                child: Image.asset(
+                  cartItem.product.imagePath,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Info produk
+            Expanded(
+              child: SizedBox(
+                height: 72,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cartItem.product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      "\$${cartItem.product.price}",
+                      style:
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Tombol +/-
+            Row(
               children: [
-                Text(cartItem.product.name,
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: () => onUpdateQuantity(cartItem.product.id, -1),
+                  style: IconButton.styleFrom(
+                    backgroundColor: scheme.surfaceVariant,
+                    shape: const CircleBorder(),
+                    minimumSize: const Size(36, 36),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    cartItem.quantity.toString().padLeft(2, '0'),
                     style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4C53A5))),
-                Text("\$${cartItem.product.price}",
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue)),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => onUpdateQuantity(cartItem.product.id, 1),
+                  style: IconButton.styleFrom(
+                    backgroundColor: scheme.surfaceVariant,
+                    shape: const CircleBorder(),
+                    minimumSize: const Size(36, 36),
+                  ),
+                ),
               ],
             ),
-          ),
-          // Tombol +/-
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => onUpdateQuantity(cartItem.product.id, -1),
-              ),
-              Text(cartItem.quantity.toString().padLeft(2, '0'),
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold)),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: () => onUpdateQuantity(cartItem.product.id, 1),
-              ),
-            ],
-          ),
-          // TOMBOL HAPUS
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () => onRemoveFromCart(cartItem.product.id),
-          ),
-        ],
+            // Hapus
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              color: Colors.red,
+              onPressed: () => onRemoveFromCart(cartItem.product.id),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Widget untuk bagian checkout
-  Widget _buildCheckoutSection() {
+  // Widget untuk bagian checkout (UI saja)
+  Widget _buildCheckoutSection(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(20)),
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: scheme.outlineVariant.withOpacity(.6)),
+      ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Total:",
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold)),
-              Text("\$${_calculateTotal().toStringAsFixed(2)}",
-                  style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue))
+              Text("Total:",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                      )),
+              Text(
+                "\$${_calculateTotal().toStringAsFixed(2)}",
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+          // Tombol visual (tanpa fungsi tambahan)
           Container(
             alignment: Alignment.center,
-            height: 50,
+            height: 52,
             width: double.infinity,
             decoration: BoxDecoration(
-                color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-            child: const Text("Check Out",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+              color: scheme.primary,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              "Check Out",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
           ),
         ],
       ),
